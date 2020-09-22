@@ -15,13 +15,6 @@ extern "C" {
 #define FMT_HEADER_ONLY
 #include "fmt/format.h"
 
-/* If you declare any globals in php_fmt.h uncomment this:
-ZEND_DECLARE_MODULE_GLOBALS(fmt)
-*/
-
-/* True global resources - no need for thread safety here */
-static int le_fmt;
-
 PHP_MINIT_FUNCTION(fmt)
 {
     return SUCCESS;
@@ -107,14 +100,14 @@ loop:
 }
 
 static const zend_module_dep fmt_deps[] = {
-	ZEND_MOD_REQUIRED("spl")
-	ZEND_MOD_END
+    ZEND_MOD_REQUIRED("spl")
+    ZEND_MOD_END
 };
 
 zend_module_entry fmt_module_entry = {
-	STANDARD_MODULE_HEADER_EX,
-	NULL,
-	fmt_deps,
+    STANDARD_MODULE_HEADER_EX,
+    NULL,
+    fmt_deps,
     "fmt",
     ext_functions,
     PHP_MINIT(fmt),
