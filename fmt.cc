@@ -46,7 +46,7 @@ PHP_FUNCTION(fmt)
     ZEND_PARSE_PARAMETERS_END();
 
     fmt::dynamic_format_arg_store<fmt::format_context> store;
-    store.reserve(argc, 0);
+    std::vector<std::shared_ptr<zend_string>> tmp_str_list;
 
     for (int i = 0; i < argc; ++i)
     {
@@ -70,13 +70,19 @@ loop:
                 store.push_back(Z_DVAL_P(tmp));
             break;
             case IS_STRING:
-                store.push_back(std::cref(Z_STRVAL_P(tmp)));
+                store.push_back(Z_STRVAL_P(tmp));
             break;
             case IS_ARRAY:
                 store.push_back("array");
             break;
-            case IS_OBJECT:
-                store.push_back("object");
+            case IS_OBJECT: {
+                // NOTE(rory): Resolve object to a string
+                std::shared_ptr<zend_string> tmp_str(_zval_get_string_func(tmp), [](zend_string* s) {
+                    zend_string_release(s);
+                });
+                store.push_back(ZSTR_VAL(tmp_str));
+                tmp_str_list.push_back(tmp_str);
+            }
             break;
             case IS_RESOURCE:
                 store.push_back("resource");
